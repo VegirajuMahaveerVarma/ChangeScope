@@ -46,4 +46,4 @@ ruff format --check .
 - Make uncertainty and evidence visible.
 - Keep new dependencies justified and optional when practical.
 
-By submitting a contribution, you agree that it may be distributed under the project's MIT license.
+By submitting a contribution, you agree that it may be distributed under the project's GPL-3.0-only license.
