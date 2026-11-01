@@ -52,7 +52,9 @@ def test_representative_fixture_matches_expected_impact_snapshot() -> None:
 
     assert result.affected_files == [
         "src/demo_pkg/service.py",
+        "tests/helpers.py",
         "tests/test_service.py",
     ]
     assert result.recommended_tests == ["tests/test_service.py"]
+    assert "tests/helpers.py" not in result.recommended_tests
     assert render_markdown(result) == snapshot_path.read_text(encoding="utf-8")
