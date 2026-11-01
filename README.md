@@ -15,7 +15,7 @@ ChangeScope aims to make those relationships visible and produce an evidence-bac
 ## What ChangeScope aims to do
 
 - Inspect changes between Git revisions or the working tree.
-- Identify changed Python files, classes, and functions.
+- Identify changed Python files and module-level import relationships.
 - Build a repository-level dependency graph.
 - Trace potentially affected modules and tests.
 - Recommend candidate tests with an explanation of each recommendation.
@@ -36,7 +36,7 @@ ChangeScope reports **potential impact**, not guaranteed breakage. Its output sh
 
 1. Read changed paths from Git.
 2. Parse Python source using the standard-library AST.
-3. Extract imports, definitions, and basic symbol relationships.
+3. Extract static Python import relationships.
 4. Build a directed dependency graph.
 5. Trace potential downstream impact from changed modules.
 6. Produce a Markdown impact report.
@@ -52,7 +52,7 @@ changescope analyze --base main --head HEAD
 changescope analyze --format json --output changescope-report.json
 ```
 
-The CLI is under development; commands above describe the intended interface and may change before the first release.
+The CLI is in early development. The commands are implemented, but analysis currently focuses on static Python imports and module-level dependencies.
 
 ## Architecture
 
