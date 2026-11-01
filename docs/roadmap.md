@@ -1,45 +1,41 @@
 # Roadmap
 
-This roadmap is directional. Milestones depend on implementation and user feedback.
+This roadmap is directional. Milestones depend on implementation and user feedback. Checkboxes reflect the current repository implementation, not an independent release certification.
 
-## 0.1 — Foundation
+## 0.1 — Local Python MVP
 
 - [x] Define the project purpose and design principles.
-- [x] Establish the Python package layout.
-- [x] Add an initial CLI interface.
-- [ ] Collect changed paths from Git safely.
-- [ ] Parse Python files using AST.
-- [ ] Build a basic module dependency graph.
-- [ ] Generate a Markdown impact report.
-- [ ] Add unit and integration tests.
+- [x] Establish the Python package layout and CLI.
+- [x] Collect working-tree changes and compare Git revisions.
+- [x] Parse Python files using the standard-library AST.
+- [x] Build module-level import dependency edges.
+- [x] Trace reverse dependencies from changed modules.
+- [x] Generate Markdown and JSON impact reports.
+- [x] Recommend candidate tests from static import relationships.
+- [x] Add unit tests and GitHub Actions CI.
+- [x] Document limitations, safety boundaries, and usage.
+- [ ] Verify behavior against several real-world repositories and publish a tagged alpha release.
 
-## 0.2 — Useful impact analysis
+## 0.2 — Improve analysis quality
 
-- [ ] Trace reverse dependencies from changed modules.
-- [ ] Include file and line evidence in results.
-- [ ] Add JSON report output.
-- [ ] Add fixtures from representative Python repositories.
-- [ ] Document known limitations and false positives.
+- [ ] Add representative repository fixtures and expected impact snapshots.
+- [ ] Improve relative import and namespace-package handling.
+- [ ] Add robust handling and warnings for oversized or unreadable source files.
+- [ ] Improve test discovery and document false-positive/false-negative cases.
+- [ ] Add coverage-data import as optional evidence.
+- [ ] Benchmark performance on small, medium, and large repositories.
 
-## 0.3 — Test impact recommendations
+## 0.3 — Developer workflow integration
 
-- [ ] Discover test files using configurable patterns.
-- [ ] Associate tests with source modules using static evidence.
-- [ ] Optionally import coverage data.
-- [ ] Rank candidate tests transparently.
-- [ ] Compare recommendations with full-suite test runs.
-
-## 0.4 — Contributor and CI experience
-
-- [ ] Add GitHub Actions integration.
-- [ ] Publish machine-readable CI summaries.
+- [ ] Add GitHub Actions summary output.
+- [ ] Add optional pull-request annotations.
 - [ ] Add TypeScript analyzer as an independent extension.
-- [ ] Improve performance on larger repositories.
-- [ ] Gather feedback from external users.
+- [ ] Add graph visualization as an optional report format.
+- [ ] Gather feedback from external users and contributors.
 
 ## 1.0 — Stability
 
 - [ ] Stabilize public APIs and report schema.
-- [ ] Define supported Python constructs and limitations.
-- [ ] Establish compatibility and security policies.
-- [ ] Publish documentation and release process.
+- [ ] Define supported Python constructs and compatibility guarantees.
+- [ ] Establish security reporting and release procedures.
+- [ ] Publish complete documentation and a tested package release.
