@@ -65,3 +65,44 @@ def test_oversized_file_warning_does_not_hide_other_modules(tmp_path: Path) -> N
 
     assert "usable" in module_paths
     assert any("large_module.py" in warning for warning in warnings)
+
+
+def test_relative_imports_resolve_sibling_and_parent_modules(tmp_path: Path) -> None:
+    package = tmp_path / "src" / "sample_pkg"
+    nested = package / "subpkg"
+    nested.mkdir(parents=True)
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    (package / "shared.py").write_text("VALUE = 1\n", encoding="utf-8")
+    (nested / "__init__.py").write_text("from . import sibling\n", encoding="utf-8")
+    (nested / "sibling.py").write_text("VALUE = 2\n", encoding="utf-8")
+    (nested / "consumer.py").write_text(
+        "from ..shared import VALUE\nfrom .sibling import VALUE as OTHER\n",
+        encoding="utf-8",
+    )
+
+    _, edges, warnings = build_dependencies(tmp_path)
+    edge_pairs = {(edge.source, edge.target) for edge in edges}
+
+    assert ("sample_pkg.subpkg", "sample_pkg.subpkg.sibling") in edge_pairs
+    assert ("sample_pkg.subpkg.consumer", "sample_pkg.shared") in edge_pairs
+    assert ("sample_pkg.subpkg.consumer", "sample_pkg.subpkg.sibling") in edge_pairs
+    assert warnings == []
+
+
+def test_namespace_package_modules_are_discovered_and_connected(tmp_path: Path) -> None:
+    namespace = tmp_path / "src" / "namespace_pkg"
+    namespace.mkdir(parents=True)
+    (namespace / "provider.py").write_text("VALUE = 1\n", encoding="utf-8")
+    (namespace / "consumer.py").write_text(
+        "from namespace_pkg.provider import VALUE\n", encoding="utf-8"
+    )
+
+    module_paths, edges, warnings = build_dependencies(tmp_path)
+
+    assert "namespace_pkg.provider" in module_paths
+    assert "namespace_pkg.consumer" in module_paths
+    assert any(
+        edge.source == "namespace_pkg.consumer" and edge.target == "namespace_pkg.provider"
+        for edge in edges
+    )
+    assert warnings == []
