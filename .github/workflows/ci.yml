@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -31,6 +33,16 @@ jobs:
 
       - name: Run tests
         run: pytest
+
+      - name: Add impact report to pull request summary
+        if: github.event_name == 'pull_request' && matrix.python-version == '3.12'
+        run: |
+          changescope analyze --base "origin/${{ github.base_ref }}" --head HEAD --output changescope-report.md
+          {
+            echo "## ChangeScope impact analysis"
+            echo
+            cat changescope-report.md
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Lint
         if: matrix.python-version == '3.12'

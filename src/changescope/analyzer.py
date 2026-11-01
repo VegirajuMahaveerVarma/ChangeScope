@@ -33,9 +33,10 @@ def module_name(path: Path, root: Path) -> str | None:
     return ".".join(parts)
 
 
-def discover_python_files(root: Path) -> list[Path]:
-    """Find Python files while excluding common generated/environment folders."""
+def _discover_python_files(root: Path) -> tuple[list[Path], list[str]]:
+    """Discover analyzable Python files and report files that could not be inspected."""
     found: list[Path] = []
+    warnings: list[str] = []
     for path in root.rglob("*.py"):
         try:
             relative = path.relative_to(root)
@@ -44,11 +45,26 @@ def discover_python_files(root: Path) -> list[Path]:
         if any(part in IGNORED_DIRS for part in relative.parts):
             continue
         try:
-            if path.is_file() and path.stat().st_size <= MAX_SOURCE_BYTES:
-                found.append(path)
-        except OSError:
+            if not path.is_file():
+                continue
+            size = path.stat().st_size
+        except OSError as exc:
+            warnings.append(f"Could not inspect {relative.as_posix()}: {exc}")
             continue
-    return sorted(found)
+        if size > MAX_SOURCE_BYTES:
+            warnings.append(
+                f"Skipped {relative.as_posix()}: source file is {size} bytes, "
+                f"exceeding the {MAX_SOURCE_BYTES}-byte analysis limit."
+            )
+            continue
+        found.append(path)
+    return sorted(found), warnings
+
+
+def discover_python_files(root: Path) -> list[Path]:
+    """Find Python files while excluding generated, environment, and oversized files."""
+    found, _ = _discover_python_files(root)
+    return found
 
 
 def _resolve_from_import(
@@ -88,8 +104,8 @@ def build_dependencies(
 ) -> tuple[dict[str, Path], list[Dependency], list[str]]:
     """Build module import edges, retaining explicitly changed-but-missing modules."""
     module_paths: dict[str, Path] = {}
-    warnings: list[str] = []
-    for path in discover_python_files(root):
+    module_files, warnings = _discover_python_files(root)
+    for path in module_files:
         name = module_name(path, root)
         if name:
             module_paths[name] = path

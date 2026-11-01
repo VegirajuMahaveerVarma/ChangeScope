@@ -49,3 +49,39 @@ def test_main_writes_json_report(monkeypatch, tmp_path: Path, capsys) -> None:
     output = capsys.readouterr().out
     assert '"changed_files": [' in output
     assert '"app.py"' in output
+
+
+def test_main_writes_report_to_requested_file(monkeypatch, tmp_path: Path, capsys) -> None:
+    destination = tmp_path / "report.md"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["changescope", "analyze", "--output", str(destination)],
+    )
+    monkeypatch.setattr("changescope.cli.repository_root", lambda _: tmp_path)
+    monkeypatch.setattr("changescope.cli.changed_paths", lambda *args, **kwargs: ["src/app.py"])
+    monkeypatch.setattr(
+        "changescope.cli.analyze_changes",
+        lambda root, paths: AnalysisResult(root=str(root), changed_files=paths),
+    )
+
+    assert main() == 0
+    assert "# ChangeScope Impact Report" in destination.read_text(encoding="utf-8")
+    assert "src/app.py" in destination.read_text(encoding="utf-8")
+    assert "report written to" in capsys.readouterr().out.lower()
+
+
+def test_main_returns_error_for_unwritable_report_path(monkeypatch, tmp_path: Path, capsys) -> None:
+    destination = tmp_path / "missing" / "report.md"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["changescope", "analyze", "--output", str(destination)],
+    )
+    monkeypatch.setattr("changescope.cli.repository_root", lambda _: tmp_path)
+    monkeypatch.setattr("changescope.cli.changed_paths", lambda *args, **kwargs: ["src/app.py"])
+    monkeypatch.setattr(
+        "changescope.cli.analyze_changes",
+        lambda root, paths: AnalysisResult(root=str(root), changed_files=paths),
+    )
+
+    assert main() == 2
+    assert "changescope: error:" in capsys.readouterr().err

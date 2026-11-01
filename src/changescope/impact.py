@@ -10,11 +10,10 @@ from changescope.models import AnalysisResult
 
 
 def _is_test(path: str) -> bool:
+    """Return whether a Python path follows common pytest test-file naming."""
     candidate = Path(path)
-    return (
-        candidate.name.startswith("test_")
-        or candidate.name.endswith("_test.py")
-        or "tests" in candidate.parts
+    return candidate.suffix == ".py" and (
+        candidate.name.startswith("test_") or candidate.name.endswith("_test.py")
     )
 
 
