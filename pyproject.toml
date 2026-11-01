@@ -36,8 +36,7 @@ changescope = "changescope.cli:main"
 where = ["src"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"
-]
+testpaths = ["tests"]
 addopts = "-ra"
 
 [tool.ruff]
