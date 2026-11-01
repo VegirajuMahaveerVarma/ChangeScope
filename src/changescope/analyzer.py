@@ -82,8 +82,11 @@ def _resolve_from_import(
     return candidates
 
 
-def build_dependencies(root: Path) -> tuple[dict[str, Path], list[Dependency], list[str]]:
-    """Build a module map and import dependency edges for parseable Python files."""
+def build_dependencies(
+    root: Path,
+    extra_modules: set[str] | None = None,
+) -> tuple[dict[str, Path], list[Dependency], list[str]]:
+    """Build module import edges, retaining explicitly changed-but-missing modules."""
     module_paths: dict[str, Path] = {}
     warnings: list[str] = []
     for path in discover_python_files(root):
@@ -91,7 +94,7 @@ def build_dependencies(root: Path) -> tuple[dict[str, Path], list[Dependency], l
         if name:
             module_paths[name] = path
 
-    known_modules = set(module_paths)
+    known_modules = set(module_paths) | (extra_modules or set())
     dependencies: set[tuple[str, str, str, int | None]] = set()
 
     for name, path in module_paths.items():
