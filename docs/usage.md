@@ -17,7 +17,7 @@ Run inside a Git repository:
 changescope analyze
 ```
 
-This includes tracked changes compared with `HEAD` and untracked, non-ignored files. Untracked files are included in the report's changed-file list if they are Python or otherwise detectable by Git; static dependency analysis currently understands Python files only.
+This includes tracked changes compared with `HEAD` and untracked, non-ignored files. Static dependency analysis currently understands Python files only.
 
 ## Compare revisions
 
@@ -25,7 +25,7 @@ This includes tracked changes compared with `HEAD` and untracked, non-ignored fi
 changescope analyze --base main --head HEAD
 ```
 
-The compared revisions determine the changed paths. Analysis reads the files currently present in the checked-out working tree, so check out the intended head revision before running the command.
+The compared revisions determine the changed paths. Analysis reads files currently present in the checked-out working tree, so check out the intended head revision before running the command.
 
 ## Export reports
 
@@ -33,6 +33,10 @@ The compared revisions determine the changed paths. Analysis reads the files cur
 changescope analyze --format json --output changescope-report.json
 changescope analyze --format markdown --output changescope-report.md
 ```
+
+## Pull request summaries in GitHub Actions
+
+The repository's CI workflow runs ChangeScope on pull requests and appends the Markdown impact report to the GitHub Actions job summary. The workflow compares the pull request with its base branch. This is an advisory report, not a replacement for code review or a full test run.
 
 ## Interpret the report
 
