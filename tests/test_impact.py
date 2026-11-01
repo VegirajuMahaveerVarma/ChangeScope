@@ -42,3 +42,17 @@ def test_deleted_module_still_impacts_importers(tmp_path: Path) -> None:
 
     assert "src/sample_pkg/service.py" in result.affected_files
     assert "tests/test_service.py" in result.recommended_tests
+
+
+def test_representative_fixture_matches_expected_impact_snapshot() -> None:
+    fixture_root = Path(__file__).parent / "fixtures" / "impact_project"
+    snapshot_path = Path(__file__).parent / "fixtures" / "expected_core_change.md"
+
+    result = analyze_changes(fixture_root, ["src/demo_pkg/core.py"])
+
+    assert result.affected_files == [
+        "src/demo_pkg/service.py",
+        "tests/test_service.py",
+    ]
+    assert result.recommended_tests == ["tests/test_service.py"]
+    assert render_markdown(result) == snapshot_path.read_text(encoding="utf-8")
