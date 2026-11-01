@@ -77,8 +77,12 @@ def test_dependency_cycle_terminates_and_reports_each_file_once(tmp_path: Path) 
     package = tmp_path / "src" / "cycle_pkg"
     package.mkdir(parents=True)
     (package / "__init__.py").write_text("", encoding="utf-8")
-    (package / "alpha.py").write_text("from cycle_pkg.beta import VALUE\\nVALUE = 1\\n", encoding="utf-8")
-    (package / "beta.py").write_text("from cycle_pkg.alpha import VALUE\\nVALUE = 2\\n", encoding="utf-8")
+    (package / "alpha.py").write_text(
+        "from cycle_pkg.beta import VALUE\\nVALUE = 1\\n", encoding="utf-8"
+    )
+    (package / "beta.py").write_text(
+        "from cycle_pkg.alpha import VALUE\\nVALUE = 2\\n", encoding="utf-8"
+    )
 
     result = analyze_changes(tmp_path, ["src/cycle_pkg/alpha.py"])
 
