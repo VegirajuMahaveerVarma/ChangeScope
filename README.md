@@ -75,7 +75,7 @@ Impact analysis
 Evidence-backed report (Markdown / JSON)
 ```
 
-See [docs/architecture.md](docs/architecture.md) for the initial design and [docs/roadmap.md](docs/roadmap.md) for planned milestones.
+See [docs/architecture.md](docs/architecture.md) for the design, [docs/usage.md](docs/usage.md) for detailed commands and report interpretation, and [docs/roadmap.md](docs/roadmap.md) for planned milestones.
 
 ## Development
 
