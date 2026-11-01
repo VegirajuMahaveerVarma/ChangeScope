@@ -64,7 +64,7 @@ def test_suffix_test_naming_is_recommended(tmp_path: Path) -> None:
     _create_project(tmp_path)
     suffix_test = tmp_path / "tests" / "service_test.py"
     suffix_test.write_text(
-        "from sample_pkg.service import get\\n\\ndef checks_get():\\n    assert get() == 1\\n",
+        "from sample_pkg.service import get\n\ndef checks_get():\n    assert get() == 1\n",
         encoding="utf-8",
     )
 
@@ -78,10 +78,10 @@ def test_dependency_cycle_terminates_and_reports_each_file_once(tmp_path: Path) 
     package.mkdir(parents=True)
     (package / "__init__.py").write_text("", encoding="utf-8")
     (package / "alpha.py").write_text(
-        "from cycle_pkg.beta import VALUE\\nVALUE = 1\\n", encoding="utf-8"
+        "from cycle_pkg.beta import VALUE\nVALUE = 1\n", encoding="utf-8"
     )
     (package / "beta.py").write_text(
-        "from cycle_pkg.alpha import VALUE\\nVALUE = 2\\n", encoding="utf-8"
+        "from cycle_pkg.alpha import VALUE\nVALUE = 2\n", encoding="utf-8"
     )
 
     result = analyze_changes(tmp_path, ["src/cycle_pkg/alpha.py"])
@@ -91,7 +91,7 @@ def test_dependency_cycle_terminates_and_reports_each_file_once(tmp_path: Path) 
 
 
 def test_non_python_change_includes_scope_warning(tmp_path: Path) -> None:
-    (tmp_path / "README.md").write_text("# Project\\n", encoding="utf-8")
+    (tmp_path / "README.md").write_text("# Project\n", encoding="utf-8")
 
     result = analyze_changes(tmp_path, ["README.md"])
 
