@@ -101,4 +101,4 @@ ChangeScope is experimental. APIs, report formats, and CLI behavior are not yet 
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+GPL-3.0-only. See [LICENSE](LICENSE).
