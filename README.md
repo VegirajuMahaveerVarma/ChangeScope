@@ -1,5 +1,7 @@
 # ChangeScope
 
+[![CI](https://github.com/VegirajuMahaveerVarma/ChangeScope/actions/workflows/ci.yml/badge.svg)](https://github.com/VegirajuMahaveerVarma/ChangeScope/actions/workflows/ci.yml) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+
 **Understand the impact of every code change.**
 
 ChangeScope is a local-first developer tool that analyzes Git changes, traces code relationships, and identifies tests that may be relevant to a change. It helps developers review changes with better context instead of relying on guesswork.
