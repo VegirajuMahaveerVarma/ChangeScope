@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import deque
 from pathlib import Path
 
-from changescope.analyzer import build_dependencies
+from changescope.analyzer import build_dependencies, module_name
 from changescope.models import AnalysisResult
 
 
@@ -32,12 +32,21 @@ def _risk(changed_count: int, affected_count: int, warnings: int) -> str:
 def analyze_changes(root: Path, changed_files: list[str]) -> AnalysisResult:
     """Analyze changed files and trace potential reverse dependency impact."""
     root = root.resolve()
-    module_paths, dependencies, warnings = build_dependencies(root)
+    changed_set = set(changed_files)
+    extra_modules = {
+        name
+        for path in changed_set
+        if (name := module_name(root / path, root)) is not None
+    }
+    module_paths, dependencies, warnings = build_dependencies(root, extra_modules)
     path_to_module = {
         path.relative_to(root).as_posix(): name for name, path in module_paths.items()
     }
-    changed_set = set(changed_files)
-    changed_modules = {path_to_module[path] for path in changed_set if path in path_to_module}
+    changed_modules = {
+        path_to_module.get(path) or module_name(root / path, root)
+        for path in changed_set
+    }
+    changed_modules.discard(None)
 
     reverse: dict[str, set[str]] = {}
     for edge in dependencies:
