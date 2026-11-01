@@ -15,7 +15,7 @@ Keep ChangeScope's analysis deterministic, local, testable, and independent of o
 
 ## Initial Python analyzer
 
-Use Python's standard-library AST module first. Extract module imports, top-level definitions, classes, and function definitions. Preserve file and line locations so reports can point to evidence.
+Use Python's standard-library AST module first to extract import relationships and source line numbers. Symbol-level call analysis is a future extension, not part of the current MVP.
 
 Do not claim complete call-graph accuracy. Dynamic imports, reflection, runtime dispatch, generated code, and unresolved imports limit static analysis.
 
