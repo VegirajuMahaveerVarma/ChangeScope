@@ -13,11 +13,13 @@
 ## Potentially affected files
 
 - `src/demo_pkg/service.py`
+- `tests/helpers.py`
 - `tests/test_service.py`
 
 ## Dependency evidence
 
 - `demo_pkg.service` imports `demo_pkg.core` (line 1)
+- `tests.helpers` imports `demo_pkg.core` (line 1)
 - `tests.test_service` imports `demo_pkg.service` (line 1)
 
 ## Candidate tests
