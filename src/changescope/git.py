@@ -43,18 +43,18 @@ def changed_paths(
     base: str | None = None,
     head: str = "HEAD",
 ) -> list[str]:
-    """Return changed paths, including untracked files for working-tree analysis.
+    """Return changed paths, including deleted files and untracked files.
 
     With base specified, compare base to head. Without base, compare the working
     tree and index with HEAD and include untracked, non-ignored files.
     """
     if base:
         output = _git(
-            root, "diff", "--name-only", "--diff-filter=ACMR", f"{base}...{head}"
+            root, "diff", "--name-only", "--diff-filter=ACMRD", f"{base}...{head}"
         )
         paths = {line.strip() for line in output.splitlines() if line.strip()}
     else:
-        output = _git(root, "diff", "--name-only", "--diff-filter=ACMR", "HEAD")
+        output = _git(root, "diff", "--name-only", "--diff-filter=ACMRD", "HEAD")
         paths = {line.strip() for line in output.splitlines() if line.strip()}
         untracked = _git(root, "ls-files", "--others", "--exclude-standard")
         paths.update(line.strip() for line in untracked.splitlines() if line.strip())
