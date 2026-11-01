@@ -19,6 +19,8 @@ def render_markdown(result: AnalysisResult) -> str:
         "",
         f"**Risk indicator:** {result.risk.upper()}",
         "",
+        "**Analysis scope:** potential impact only; recommendations are advisory.",
+        "",
         "> This is static, best-effort impact analysis—not a guarantee that a change will or will not break behavior.",
         "",
         "## Changed files",
