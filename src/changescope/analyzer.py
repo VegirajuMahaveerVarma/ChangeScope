@@ -10,7 +10,7 @@ from changescope.models import Dependency
 
 IGNORED_DIRS = {
     ".git", ".venv", "venv", "__pycache__", "site-packages",
-    "node_modules", "build", "dist", ".tox",
+    "node_modules", "build", "dist", ".tox", ".pytest_cache",
 }
 MAX_SOURCE_BYTES = 1_000_000
 
@@ -24,6 +24,8 @@ def module_name(path: Path, root: Path) -> str | None:
     if relative.suffix != ".py":
         return None
     parts = list(relative.with_suffix("").parts)
+    if parts and parts[0] == "src":
+        parts.pop(0)
     if parts and parts[-1] == "__init__":
         parts.pop()
     if not parts or any(not part.isidentifier() for part in parts):
@@ -35,7 +37,11 @@ def discover_python_files(root: Path) -> list[Path]:
     """Find Python files while excluding common generated/environment folders."""
     found: list[Path] = []
     for path in root.rglob("*.py"):
-        if any(part in IGNORED_DIRS for part in path.parts):
+        try:
+            relative = path.relative_to(root)
+        except ValueError:
+            continue
+        if any(part in IGNORED_DIRS for part in relative.parts):
             continue
         try:
             if path.is_file() and path.stat().st_size <= MAX_SOURCE_BYTES:
@@ -49,14 +55,12 @@ def _resolve_from_import(
     node: ast.ImportFrom,
     current_module: str,
     known_modules: set[str],
+    is_package: bool = False,
 ) -> set[str]:
-    package = current_module if current_module.endswith(".__init__") else current_module
-    if not current_module.endswith(".__init__"):
-        package = current_module.rpartition(".")[0]
+    package = current_module if is_package else current_module.rpartition(".")[0]
     if not package and node.level:
         return set()
 
-    resolved_base = ""
     if node.level:
         relative = "." * node.level + (node.module or "")
         try:
@@ -65,12 +69,14 @@ def _resolve_from_import(
             return set()
     elif node.module:
         resolved_base = node.module
+    else:
+        return set()
 
     candidates: set[str] = set()
     if resolved_base in known_modules:
         candidates.add(resolved_base)
     for alias in node.names:
-        candidate = f"{resolved_base}.{alias.name}" if resolved_base else alias.name
+        candidate = f"{resolved_base}.{alias.name}"
         if candidate in known_modules:
             candidates.add(candidate)
     return candidates
@@ -97,9 +103,9 @@ def build_dependencies(root: Path) -> tuple[dict[str, Path], list[Dependency], l
         try:
             tree = ast.parse(source, filename=str(path))
         except SyntaxError as exc:
+            location = f" at line {exc.lineno}" if exc.lineno else ""
             warnings.append(
-                f"Could not parse {path.relative_to(root)}"
-                f"{f' at line {exc.lineno}' if exc.lineno else ''}: {exc.msg}"
+                f"Could not parse {path.relative_to(root)}{location}: {exc.msg}"
             )
             continue
 
@@ -117,7 +123,9 @@ def build_dependencies(root: Path) -> tuple[dict[str, Path], list[Dependency], l
                                 dependencies.add((name, candidate, "imports", node.lineno))
                                 break
             elif isinstance(node, ast.ImportFrom):
-                for target in _resolve_from_import(node, name, known_modules):
+                for target in _resolve_from_import(
+                    node, name, known_modules, is_package=path.name == "__init__.py"
+                ):
                     dependencies.add((name, target, "imports", node.lineno))
 
     edges = [
